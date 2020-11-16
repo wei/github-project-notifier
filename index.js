@@ -1,28 +1,34 @@
-const fs = require('fs');
-const Discord = require('discord.js');
-const { token, prefix } = require('./config');
-const webhookHandler = require('./webhook');
+const fs = require("fs");
+require("dotenv").config();
+const Discord = require("discord.js");
+const { token, prefix } = require("./config");
+const webhookHandler = require("./webhook");
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs
+  .readdirSync("./commands")
+  .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
   const command = require(`./commands/${file}`);
   client.commands.set(command.name, command);
 }
 
-client.once('ready', () => {
-  console.log('Discord bot ready');
+client.once("ready", () => {
+  console.log("Discord bot ready");
 });
 
-client.on('message', message => {
+client.on("message", (message) => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const commandName = args.shift().toLowerCase();
 
-  const command = client.commands.get(commandName)
-		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+  const command =
+    client.commands.get(commandName) ||
+    client.commands.find(
+      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+    );
 
   if (!command) return;
 
@@ -38,20 +44,19 @@ client.on('message', message => {
 
   try {
     command.execute(message, args);
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
-    message.reply('There was an error trying to execute that command!');
+    message.reply("There was an error trying to execute that command!");
   }
 });
 
 client.login(token);
 
-const fastify = require('fastify')({
-  logger: process.env.NODE_ENV !== 'production',
+const fastify = require("fastify")({
+  logger: process.env.NODE_ENV !== "production",
 });
 
-fastify.post('/webhook', webhookHandler(client));
+fastify.post("/webhook", webhookHandler(client));
 
 fastify.listen(process.env.PORT || 3000, (err, address) => {
   if (err) throw err;
