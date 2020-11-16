@@ -14,7 +14,7 @@ async function getGitHubProject(payload) {
   return (await octokit.projects.get({ project_id: projectId })).data;
 }
 
-async function prepareMessage(payload, githubProject) {
+async function prepareMessage({ payload, githubProject }) {
   const { action, changes, project_card } = payload;
   const { html_url: githubProjectUrl } = githubProject;
 
