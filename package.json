@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
+    "dev": "nodemon --ignore db.json index.js",
     "smee": "smee --path /webhook",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix"

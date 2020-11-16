@@ -3,6 +3,9 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const { token, prefix } = require('./config');
 const webhookHandler = require('./webhook');
+const { connectToDatastore } = require('./datastore');
+
+connectToDatastore();
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -23,7 +26,7 @@ client.on('message', message => {
   const commandName = args.shift().toLowerCase();
 
   const command = client.commands.get(commandName)
-		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+    || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
   if (!command) return;
 
