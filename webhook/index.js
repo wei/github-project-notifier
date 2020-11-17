@@ -11,14 +11,20 @@ module.exports = client => async (request, reply) => {
   const payload = request.body;
 
   const githubProject = await getGitHubProject(payload);
-  const { html_url: githubProjectUrl } = githubProject;
+  const { html_url: githubProjectUrl } = githubProject || {};
+  if (!githubProject || !githubProjectUrl) {
+    return { status: 'not found', message: 'GitHub project not found' };
+  }
 
   const messageEmbed = await prepareMessage({ payload, githubProject });
   if (!messageEmbed) {
     return { status: 'ok' };
   }
 
-  const subscribedChannels = await datastore.queryByGitHubProjectUrl(githubProjectUrl);
+  const subscribedChannels = await datastore.query({ githubProjectUrl });
+  (process.env.DEBUG_CHANNEL || '').split(',').forEach(
+    channelId => subscribedChannels.push({ channelId, githubProjectUrl }),
+  );
 
   for (const { channelId } of subscribedChannels) {
     const channel = await client.channels.fetch(channelId);
