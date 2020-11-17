@@ -1,29 +1,57 @@
+const fs = require('fs');
+
+let _data = { 'subscriptions': [] };
+const _datastore_path = 'db.json';
+
 module.exports = {
-  async add({ channelId, githubProjectUrl }) {
-    // TODO save to database
-    console.log(`Subscibe ${channelId} to ${githubProjectUrl}`);
+  async connectToDatastore() {
+    fs.readFile(_datastore_path, (err, data) => {
+      if (err) {
+        if (err.code === 'ENOENT') {
+          // Create local datastore
+          module.exports.commit();
+        }
+        else {
+          throw err;
+        }
+      }
+      else {
+        _data = JSON.parse(data);
+      }
+    });
   },
-  async remove({ channelId, githubProjectUrl }) {
-    // TODO remove from database
-    console.log(`Unsubscribe ${channelId} to ${githubProjectUrl}`);
-  },
-  async queryByGitHubProjectUrl(githubProjectUrl) {
-    // TODO
-    console.log(`Find by githubProjectUrl ${githubProjectUrl}`);
-    const results = [];
-    if (process.env.DEBUG_CHANNEL) {
-      results.push(
-        {
-          channelId: process.env.DEBUG_CHANNEL,
-          githubProjectUrl,
-        },
-      );
+  add({ channelId, githubProjectUrl, commit = true }) {
+    const snapshot = module.exports.query({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+    if (snapshot.length === 0) {
+      _data.subscriptions.push({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+      if (commit) {
+        module.exports.commit();
+      }
     }
-    return results;
+    else {
+      throw Error('Subscription entry already exists!');
+    }
   },
-  async queryByChannelId(channelId) {
-    // TODO
-    console.log(`Find by channelId ${channelId}`);
-    return [];
+  remove({ channelId, githubProjectUrl, commit = true }) {
+    const index = _data.subscriptions.findIndex(subscription => subscription.channelId === channelId &&
+      subscription.githubProjectUrl === githubProjectUrl);
+    if (index > -1) {
+      _data.subscriptions.splice(index, 1);
+      if (commit) {
+        module.exports.commit();
+      }
+    }
+    else {
+      throw Error('Subscription entry does not exist');
+    }
+  },
+  query({ channelId, githubProjectUrl }) {
+    return _data.subscriptions.filter(subscription =>
+      (channelId ? subscription.channelId === channelId : true) &&
+      (githubProjectUrl ? subscription.githubProjectUrl === githubProjectUrl : true),
+    );
+  },
+  commit() {
+    fs.writeFileSync(_datastore_path, JSON.stringify(_data));
   },
 };
