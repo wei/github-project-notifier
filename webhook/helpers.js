@@ -72,7 +72,7 @@ async function prepareMessage({ payload, githubProject }) {
   }
 
 
-  const embed = new MessageEmbed()
+  let embed = new MessageEmbed()
     .setTitle(`${repoName}`)
     .setURL(`${githubProjectUrl}#card-${project_card.id}`)
     .setColor(color)
@@ -81,21 +81,39 @@ async function prepareMessage({ payload, githubProject }) {
     .addFields(
       { name: '\u200B', value: '\u200B' },
     )
-    .addFields(
+    .setDescription(`${description}`)
+    .setTimestamp();
+
+  if(action == 'moved') {
+    embed = embed.addFields(
       { name: 'Moved From', value: `${prevColName.name}`, inline: true },
       { name: '\u200B', value: '\u200B', inline: true },
       { name: 'Moved To', value: `${newColName.name}`, inline: true },
     )
-    .addFields(
-      { name: 'Card Name', value: `${cardName}`, inline: true },
+      .addFields(
+        { name: 'Project Name', value: `${cardName}`, inline: true },
+        { name: '\u200B', value: '\u200B', inline: true },
+        { name: 'Action', value: `${payload.action}`, inline: true },
+      )
+      .addFields(
+        { name: '\u200B', value: '\u200B' },
+      );
+  }
+  else {
+    embed = embed.addFields(
+      { name: 'Column', value: `${newColName.name}`, inline: true },
       { name: '\u200B', value: '\u200B', inline: true },
-      { name: 'Action', value: `${payload.action}`, inline: true },
+      { name: '\u200B', value: '\u200B', inline: true },
     )
-    .addFields(
-      { name: '\u200B', value: '\u200B' },
-    )
-    .setDescription(`${description}`)
-    .setTimestamp();
+      .addFields(
+        { name: 'Project Name', value: `${cardName}`, inline: true },
+        { name: '\u200B', value: '\u200B', inline: true },
+        { name: 'Action', value: `${payload.action}`, inline: true },
+      )
+      .addFields(
+        { name: '\u200B', value: '\u200B' },
+      );
+  }
 
   return embed;
 }
