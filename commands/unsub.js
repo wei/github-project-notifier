@@ -1,18 +1,27 @@
+const { remove } = require('../datastore');
+const { validateGithubProjectUrl } = require('./utils');
+
 module.exports = {
   name: 'unsub',
   aliases: ['unsubscribe'],
-  description: 'Unsubscribe to a GitHub project board',
+  description: 'Unsubscribe to a GitHub Project board',
   usage: 'https://github.com/[owner]/[repo]/projects/1',
   args: true,
   async execute(message, args) {
     const channelId = message.channel.id;
-    const githubProjectUrl = args[0];
+    const githubProjectUrl = args[0].toLowerCase();
 
-    console.log({ 'command': 'unsub', channelId, githubProjectUrl });
-    // TODO Remove channel id and githubProjectUrl from the database, send message if not found
-
-    message.channel.send(`Unsubscribed to \`${githubProjectUrl}\``);
-
-    // TODO send message if errored
+    if (validateGithubProjectUrl({ githubProjectUrl: githubProjectUrl })) {
+      try {
+        remove({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+        message.channel.send(`Unsubscribed from \`${githubProjectUrl}\``);
+      }
+      catch (error) {
+        message.channel.send(`You are not subscribed to \`${githubProjectUrl}\`!`);
+      }
+    }
+    else {
+      message.channel.send('Please use correct format:\n`https://github.com/[owner/org]/[repo]/projects/[0-9]+`');
+    }
   },
 };
