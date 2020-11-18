@@ -4,7 +4,7 @@ const { validateGithubProjectUrl } = require('./utils');
 module.exports = {
   name: 'sub',
   aliases: ['subscribe'],
-  description: 'Subscribe to a GitHub project board',
+  description: 'Subscribe to a GitHub Project board',
   usage: 'https://github.com/[owner]/[repo]/projects/1',
   args: true,
   async execute(message, args) {
@@ -17,11 +17,11 @@ module.exports = {
         message.channel.send(`Subscribed to \`${githubProjectUrl}\``);
       }
       catch (error) {
-        message.channel.send('Subscription for this project already exists!');
+        message.channel.send(`Already subscribed to \`${githubProjectUrl}\``);
       }
     }
     else {
-      message.channel.send('Please use correct format:\n`https://github.com/[owner/org]/[repo]/projects/[0-9]+`');
+      message.channel.send('Please use correct format:\n`https://github.com/[owner]/[repo]/projects/[0-9]+`');
     }
   },
 };

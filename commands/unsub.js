@@ -4,20 +4,20 @@ const { validateGithubProjectUrl } = require('./utils');
 module.exports = {
   name: 'unsub',
   aliases: ['unsubscribe'],
-  description: 'Unsubscribe to a GitHub project board',
+  description: 'Unsubscribe to a GitHub Project board',
   usage: 'https://github.com/[owner]/[repo]/projects/1',
   args: true,
   async execute(message, args) {
     const channelId = message.channel.id;
-    const githubProjectUrl = args[0];
+    const githubProjectUrl = args[0].toLowerCase();
 
     if (validateGithubProjectUrl({ githubProjectUrl: githubProjectUrl })) {
       try {
         remove({ channelId: channelId, githubProjectUrl: githubProjectUrl });
-        message.channel.send(`Unsubscribed to \`${githubProjectUrl}\``);
+        message.channel.send(`Unsubscribed from \`${githubProjectUrl}\``);
       }
       catch (error) {
-        message.channel.send('Does not exist!');
+        message.channel.send(`You are not subscribed to \`${githubProjectUrl}\`!`);
       }
     }
     else {
