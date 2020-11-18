@@ -23,7 +23,7 @@ module.exports = {
   add({ channelId, githubProjectUrl, commit = true }) {
     const snapshot = module.exports.query({ channelId: channelId, githubProjectUrl: githubProjectUrl });
     if (snapshot.length === 0) {
-      _data.subscriptions.push({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+      _data.subscriptions.push({ channelId: channelId, githubProjectUrl: githubProjectUrl.toLowerCase() });
       if (commit) {
         module.exports.commit();
       }
@@ -34,7 +34,7 @@ module.exports = {
   },
   remove({ channelId, githubProjectUrl, commit = true }) {
     const index = _data.subscriptions.findIndex(subscription => subscription.channelId === channelId &&
-      subscription.githubProjectUrl === githubProjectUrl);
+      subscription.githubProjectUrl.toLowerCase() === githubProjectUrl.toLowerCase());
     if (index > -1) {
       _data.subscriptions.splice(index, 1);
       if (commit) {
@@ -48,7 +48,7 @@ module.exports = {
   query({ channelId, githubProjectUrl }) {
     return _data.subscriptions.filter(subscription =>
       (channelId ? subscription.channelId === channelId : true) &&
-      (githubProjectUrl ? subscription.githubProjectUrl === githubProjectUrl : true),
+      (githubProjectUrl ? subscription.githubProjectUrl.toLowerCase() === githubProjectUrl.toLowerCase() : true),
     );
   },
   commit() {

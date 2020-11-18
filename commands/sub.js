@@ -1,3 +1,6 @@
+const { add } = require('../datastore');
+const { validateGithubProjectUrl } = require('./utils');
+
 module.exports = {
   name: 'sub',
   aliases: ['subscribe'],
@@ -6,16 +9,19 @@ module.exports = {
   args: true,
   async execute(message, args) {
     const channelId = message.channel.id;
-    const githubProjectUrl = args[0];
+    const githubProjectUrl = args[0].toLowerCase();
 
-    console.log({ 'command': 'sub', channelId, githubProjectUrl });
-
-    // TODO Validate githubProjectUrl, send message with example if invalid
-
-    // TODO Store channelId and githubProjectUrl in a database
-
-    message.channel.send(`Subscribed to \`${githubProjectUrl}\``);
-
-    // TODO send message if errored
+    if (validateGithubProjectUrl({ githubProjectUrl: githubProjectUrl })) {
+      try {
+        add({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+        message.channel.send(`Subscribed to \`${githubProjectUrl}\``);
+      }
+      catch (error) {
+        message.channel.send('Subscription for this project already exists!');
+      }
+    }
+    else {
+      message.channel.send('Please use correct format:\n`https://github.com/[owner/org]/[repo]/projects/[0-9]+`');
+    }
   },
 };

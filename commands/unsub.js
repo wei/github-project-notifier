@@ -1,3 +1,6 @@
+const { remove } = require('../datastore');
+const { validateGithubProjectUrl } = require('./utils');
+
 module.exports = {
   name: 'unsub',
   aliases: ['unsubscribe'],
@@ -8,11 +11,17 @@ module.exports = {
     const channelId = message.channel.id;
     const githubProjectUrl = args[0];
 
-    console.log({ 'command': 'unsub', channelId, githubProjectUrl });
-    // TODO Remove channel id and githubProjectUrl from the database, send message if not found
-
-    message.channel.send(`Unsubscribed to \`${githubProjectUrl}\``);
-
-    // TODO send message if errored
+    if (validateGithubProjectUrl({ githubProjectUrl: githubProjectUrl })) {
+      try {
+        remove({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+        message.channel.send(`Unsubscribed to \`${githubProjectUrl}\``);
+      }
+      catch (error) {
+        message.channel.send('Does not exist!');
+      }
+    }
+    else {
+      message.channel.send('Please use correct format:\n`https://github.com/[owner/org]/[repo]/projects/[0-9]+`');
+    }
   },
 };
