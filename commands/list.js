@@ -1,22 +1,21 @@
+const { query } = require('../datastore');
+
 module.exports = {
   name: 'list',
   aliases: ['ls'],
-  description: 'List subscribed GitHub project boards',
+  description: 'List subscribed GitHub Project boards',
   async execute(message) {
     const channelId = message.channel.id;
 
-    console.log({ 'command': 'list', channelId });
+    const subscriptions = query({ channelId: channelId });
 
-    // TODO Fetch githubProjectUrl from the database by channelId, send message if none found
-    const githubProjectUrls = [
-      'https://github.com/[owner]/[repo]/projects/1',
-      'https://github.com/[owner]/[repo]/projects/2',
-      'https://github.com/[owner]/[repo]/projects/3',
-    ];
-    message.channel.send(`GitHub Project boards subscribed: ${
-      githubProjectUrls.map(url => `\n * \`${url}\``)
-    }`);
-
-    // TODO send message if errored
+    if (subscriptions.length === 0) {
+      message.channel.send('There are no subscribed GitHub Project boards for this channel. Please use `sub` command to subscribe first!');
+    }
+    else {
+      message.channel.send(`GitHub Project boards subscribed: ${
+        subscriptions.map(subscription => `\n * \`${subscription.githubProjectUrl}\``)
+      }`);
+    }
   },
 };

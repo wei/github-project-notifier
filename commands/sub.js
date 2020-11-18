@@ -1,21 +1,27 @@
+const { add } = require('../datastore');
+const { validateGithubProjectUrl } = require('./utils');
+
 module.exports = {
   name: 'sub',
   aliases: ['subscribe'],
-  description: 'Subscribe to a GitHub project board',
+  description: 'Subscribe to a GitHub Project board',
   usage: 'https://github.com/[owner]/[repo]/projects/1',
   args: true,
   async execute(message, args) {
     const channelId = message.channel.id;
-    const githubProjectUrl = args[0];
+    const githubProjectUrl = args[0].toLowerCase();
 
-    console.log({ 'command': 'sub', channelId, githubProjectUrl });
-
-    // TODO Validate githubProjectUrl, send message with example if invalid
-
-    // TODO Store channelId and githubProjectUrl in a database
-
-    message.channel.send(`Subscribed to \`${githubProjectUrl}\``);
-
-    // TODO send message if errored
+    if (validateGithubProjectUrl({ githubProjectUrl: githubProjectUrl })) {
+      try {
+        add({ channelId: channelId, githubProjectUrl: githubProjectUrl });
+        message.channel.send(`Subscribed to \`${githubProjectUrl}\``);
+      }
+      catch (error) {
+        message.channel.send(`Already subscribed to \`${githubProjectUrl}\``);
+      }
+    }
+    else {
+      message.channel.send('Please use correct format:\n`https://github.com/[owner]/[repo]/projects/[0-9]+`');
+    }
   },
 };
