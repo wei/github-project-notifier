@@ -16,7 +16,7 @@ async function prepareMessage({ payload, githubProject }) {
   const { html_url: githubProjectUrl, name: projectName } = githubProject;
   const { full_name: repoFullName } = repository;
   let description = (project_card.note || '').trim();
-  let prevColumn = { name: '-' };
+  let prevColumn = null;
   let cardState = 'card';
   const firstLine = description.split(/\n+/)[0];
   let title = `[${toPascalCase(action)}] ${firstLine}`;
@@ -117,9 +117,9 @@ function getThumbnail(name = 'card') {
 function getColor(action) {
   switch (action) {
   case 'created': return 'GREEN';
-  case 'edited': return 'BLUE';
-  case 'moved': return 'YELLOW';
-  case 'converted': return 'AQUA';
+  case 'edited': return 'GOLD';
+  case 'moved': return 'BLUE';
+  case 'converted': return 'ORANGE';
   case 'deleted': return 'RED';
   default: return 'DARK_BUT_NOT_BLACK';
   }
