@@ -1,5 +1,6 @@
 const datastore = require('../datastore');
-const { getGitHubProject, prepareMessage } = require('./helpers');
+const { getGitHubProject } = require('./api');
+const { prepareMessage } = require('./helpers');
 
 // TODO Performance improvements using `Promise.all`
 module.exports = client => async (request, reply) => {
