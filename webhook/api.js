@@ -51,19 +51,16 @@ async function getPull(owner, repo, pull_number) {
   }
 }
 
-async function getIssueState(owner, repo, issue) {
+async function getCardState(issue, pullRequest) {
   try {
-    if (!issue.pull_request) {
+    if (!pullRequest) {
       return `issue-${issue.state}`;
     }
+    else if (issue.state == 'closed' && pullRequest.merged) {
+      return 'pr-merged';
+    }
     else {
-      const pullRequest = await getPull(owner, repo, issue.number);
-      if (issue.state == 'closed' && pullRequest.merged) {
-        return 'pr-merged';
-      }
-      else {
-        return `pr-${issue.state}`;
-      }
+      return `pr-${issue.state}`;
     }
   }
   catch {
@@ -75,6 +72,6 @@ module.exports = {
   getGitHubProject,
   getProjectCardColumn,
   getIssue,
-  getIssueState,
   getPull,
+  getCardState,
 };

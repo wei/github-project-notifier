@@ -2,7 +2,8 @@ const { MessageEmbed } = require('discord.js');
 const {
   getProjectCardColumn,
   getIssue,
-  getIssueState,
+  getPull,
+  getCardState,
 } = require('./api');
 
 async function prepareMessage({ payload, githubProject }) {
@@ -12,9 +13,11 @@ async function prepareMessage({ payload, githubProject }) {
     // Ignore card moves within the same column
     return null;
   }
+
   const { login: userName, avatar_url: userAvatar, html_url: userUrl } = sender;
   const { html_url: githubProjectUrl, name: projectName } = githubProject;
   const { full_name: repoFullName } = repository;
+
   let description = (project_card.note || '').trim();
   let prevColumn = null;
   let cardState = 'card';
@@ -22,39 +25,39 @@ async function prepareMessage({ payload, githubProject }) {
   let title = `[${toPascalCase(action)}] ${firstLine}`;
   description = description.replace(firstLine, '').trim();
   const column = await getProjectCardColumn(project_card.column_id);
+  let issue = null;
+  let pullRequest = null;
 
   if (changes && changes.column_id) {
     prevColumn = await getProjectCardColumn(changes.column_id.from);
   }
 
-  const linkedIssue = detectProjectCardIssue(project_card);
-  if (linkedIssue) {
-    const issue = await getIssue(linkedIssue.owner, linkedIssue.repo, linkedIssue.number);
+  const detectedIssue = detectProjectCardIssue(project_card);
+  if (detectedIssue) {
+    issue = await getIssue(detectedIssue.owner, detectedIssue.repo, detectedIssue.number);
     if (issue) {
-      cardState = await getIssueState(linkedIssue.owner, linkedIssue.repo, issue);
-      const issueRepo = `${linkedIssue.owner}/${linkedIssue.repo}`;
+      pullRequest = issue.pull_request ? await getPull(detectedIssue.owner, detectedIssue.repo, detectedIssue.number) : null;
+      cardState = await getCardState(issue, pullRequest);
+      const issueRepo = `${detectedIssue.owner}/${detectedIssue.repo}`;
       const repoPrefix = issueRepo !== repoFullName ? issueRepo : '';
       title = `[${toPascalCase(action)}] ${repoPrefix}#${issue.number}\n${issue.title}`;
       description = project_card.note || '';
       if (!description) {
-        description = issue.body.trim();
+        description = (issue.body || '').trim();
 
-        if (description.length > 280) {
-          description = `${description.substring(0, 280)}...`;
+        if (description.length > 350) {
+          description = `${description.substring(0, 350)}... [(Read more)](${issue.html_url})`;
         }
       }
     }
   }
 
-  const color = getColor(action);
-  const thumbnail = getThumbnail(cardState);
-
   let embed = new MessageEmbed()
     .setTitle(title)
     .setDescription(description)
     .setURL(`${githubProjectUrl}#card-${project_card.id}`)
-    .setColor(color)
-    .setThumbnail(thumbnail)
+    .setColor(getColor(action))
+    .setThumbnail(getThumbnail(cardState))
     .setAuthor(userName, userAvatar, userUrl)
     .addFields(
       { name: '\u200B', value: '\u200B' },
@@ -63,48 +66,50 @@ async function prepareMessage({ payload, githubProject }) {
     .setTimestamp();
 
   const embedFields = {
-    prevColName: prevColumn ? prevColumn.name : undefined,
-    colName: column ? column.name : '-',
-    creator: project_card.creator ? `@${project_card.creator.login}` : '-',
+    prevColName: prevColumn ? `[${prevColumn.name}](${githubProjectUrl}#column-${prevColumn.id})` : undefined,
+    colName: column ? `[${column.name}](${githubProjectUrl}#column-${column.id})` : '-',
+    created: project_card.creator
+      ? `[@${project_card.creator.login}](https://github.com/${project_card.creator.login}) on ${project_card.created_at.substr(0, 10)}` : '-',
+    assignees: (issue && issue.assignees || []).map(a => `[@${a.login}](https://github.com/${a.login})`).join('\n'),
+    reviewers: (pullRequest && pullRequest.requested_reviewers || []).map(r => `[@${r.login}](https://github.com/${r.login})`).join('\n'),
   };
   embed = setEmbedFields(embed, embedFields);
 
   return embed;
 }
 
-function setEmbedFields(embed, { prevColName, colName, creator }) {
+function setEmbedFields(embed, { prevColName, colName, created, assignees, reviewers }) {
   if (prevColName) {
     embed = embed
       .addFields(
         { name: 'Moved To', value: colName, inline: true },
         { name: '\u200B', value: '\u200B', inline: true },
         { name: 'Moved From', value: prevColName, inline: true },
-      )
-      .addFields(
-        { name: 'Created by', value: creator, inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-      )
-      .addFields(
-        { name: '\u200B', value: '\u200B' },
       );
   }
   else {
     embed = embed
       .addFields(
-        { name: 'Column', value: colName, inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-      )
-      .addFields(
-        { name: 'Created by', value: creator, inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-        { name: '\u200B', value: '\u200B', inline: true },
-      )
-      .addFields(
-        { name: '\u200B', value: '\u200B' },
+        { name: 'Column', value: colName },
       );
   }
+
+  if (assignees || reviewers) {
+    embed = embed
+      .addFields(
+        { name: 'Reviewers', value: reviewers || '-', inline: true },
+        { name: '\u200B', value: '\u200B', inline: true },
+        { name: 'Assignees', value: assignees || '-', inline: true },
+      );
+  }
+
+  embed = embed
+    .addFields(
+      { name: 'Created', value: created },
+    )
+    .addFields(
+      { name: '\u200B', value: '\u200B' },
+    );
 
   return embed;
 }
