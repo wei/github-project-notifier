@@ -16,7 +16,7 @@ async function prepareMessage({ payload, githubProject }) {
   const { html_url: githubProjectUrl, name: projectName } = githubProject;
   const { full_name: repoFullName } = repository;
   let description = (project_card.note || '').trim();
-  let prevColumn = { name: '-' };
+  let prevColumn = null;
   let cardState = 'card';
   const firstLine = description.split(/\n+/)[0];
   let title = `[${toPascalCase(action)}] ${firstLine}`;
