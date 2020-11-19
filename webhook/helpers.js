@@ -117,9 +117,9 @@ function getThumbnail(name = 'card') {
 function getColor(action) {
   switch (action) {
   case 'created': return 'GREEN';
-  case 'edited': return 'BLUE';
-  case 'moved': return 'YELLOW';
-  case 'converted': return 'AQUA';
+  case 'edited': return 'GOLD';
+  case 'moved': return 'BLUE';
+  case 'converted': return 'ORANGE';
   case 'deleted': return 'RED';
   default: return 'DARK_BUT_NOT_BLACK';
   }
