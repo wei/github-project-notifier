@@ -72,13 +72,14 @@ async function prepareMessage({ payload, githubProject }) {
       ? `[@${project_card.creator.login}](https://github.com/${project_card.creator.login}) on ${project_card.created_at.substr(0, 10)}` : '-',
     assignees: (issue && issue.assignees || []).map(a => `[@${a.login}](https://github.com/${a.login})`).join('\n'),
     reviewers: (pullRequest && pullRequest.requested_reviewers || []).map(r => `[@${r.login}](https://github.com/${r.login})`).join('\n'),
+    labels: (issue && issue.labels || []).map(l => `\`${l.name}\``).join(' '),
   };
   embed = setEmbedFields(embed, embedFields);
 
   return embed;
 }
 
-function setEmbedFields(embed, { prevColName, colName, created, assignees, reviewers }) {
+function setEmbedFields(embed, { prevColName, colName, created, assignees, reviewers, labels }) {
   if (prevColName) {
     embed = embed
       .addFields(
@@ -100,6 +101,13 @@ function setEmbedFields(embed, { prevColName, colName, created, assignees, revie
         { name: 'Reviewers', value: reviewers || '-', inline: true },
         { name: '\u200B', value: '\u200B', inline: true },
         { name: 'Assignees', value: assignees || '-', inline: true },
+      );
+  }
+
+  if (labels) {
+    embed = embed
+      .addFields(
+        { name: 'Labels', value: labels },
       );
   }
 
