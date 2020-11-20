@@ -4,7 +4,7 @@ const { validateGithubProjectUrl } = require('./utils');
 module.exports = {
   name: 'unsub',
   aliases: ['unsubscribe'],
-  description: 'Unsubscribe to a GitHub Project board',
+  description: 'Unsubscribe from a GitHub Project board',
   usage: 'https://github.com/[owner]/[repo]/projects/1',
   args: true,
   async execute(message, args) {
