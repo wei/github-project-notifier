@@ -7,24 +7,33 @@ We love your input! We want to make contributing to this project as easy and tra
 - Proposing new features
 - Becoming a maintainer
 
-## Set Up Development Environment
+## Set Up Environment
 
 1. Create a Discord server and [Discord Application](https://discord.com/developers/applications) then add a bot.
-1. Install Discord bot onto Discord server by going to `https://discordapp.com/oauth2/authorize?client_id=<CLIENT_ID>&scope=bot`.
-1. Copy `.env.example` to `.env` and fill in the variables.
+2. Install Discord bot onto Discord server by going to `https://discordapp.com/oauth2/authorize?client_id=<CLIENT_ID>&scope=bot`.
+3. Copy `.env.example` to `.env` and fill in the variables.
 
     - `DISCORD_BOT_TOKEN` - from step 1
     - `GITHUB_TOKEN` - create [here](https://github.com/settings/tokens) with `public_repo` scope
     - `DEBUG_CHANNEL` - always cc messages to this channel
 
-1. Run `npm install`.
-1. Open two terminals, and run:
+4. Run `npm install`.
+
+### Development
+
+5. Open two terminals, and run:
 
     1. `npm run dev` - _Starts the development server_
     1. `npm run smee` - _Starts the smee server which proxies GitHub webhook events to development server_
 
-1. Go to a test GitHub repository and create a webhook with the smee url, select `Content type: application/json` and check only the `project_card` event.
-1. Retrieve channel id by sending `!github-project debug` to `GitHub Project Notifier` bot you installed in step 2, update `DEBUG_CHANNEL` in `.env`, and restart `npm run dev`.
+6. Go to a test GitHub repository and create a webhook with the smee url, select `Content type: application/json` and check only the `project_card` event.
+7. Retrieve channel id by sending `!github-project debug` to `GitHub Project Notifier` bot you installed in step 2, update `DEBUG_CHANNEL` in `.env`, and restart `npm run dev`.
+
+### Production
+
+5. `npm start` - _Starts the production server. Alternatively, you can use `pm2`_
+6. Set up a proxy to 5. with domain and SSL.
+7. Create a [GitHub App](https://github.com/settings/apps) with `Project card` webhook, and configure 6. as the webhook url.
 
 ## We Use [GitHub Flow](https://guides.GitHub.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
 Pull requests are the best way to propose changes to the codebase (we use [GitHub Flow](https://guides.GitHub.com/introduction/flow/index.html)). We actively welcome your pull requests:
