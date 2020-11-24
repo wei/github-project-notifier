@@ -59,9 +59,6 @@ async function prepareMessage({ payload, githubProject }) {
     .setColor(getColor(action))
     .setThumbnail(getThumbnail(cardState))
     .setAuthor(userName, userAvatar, userUrl)
-    .addFields(
-      { name: '\u200B', value: '\u200B' },
-    )
     .setFooter(`${repoFullName} • ${projectName}`, 'https://user-images.githubusercontent.com/5880908/99613426-888b1d00-29e5-11eb-981e-029a23b84763.png')
     .setTimestamp();
 
