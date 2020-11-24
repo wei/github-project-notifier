@@ -114,9 +114,6 @@ function setEmbedFields(embed, { prevColName, colName, created, assignees, revie
   embed = embed
     .addFields(
       { name: 'Created', value: created },
-    )
-    .addFields(
-      { name: '\u200B', value: '\u200B' },
     );
 
   return embed;
