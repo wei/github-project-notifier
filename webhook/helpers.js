@@ -54,7 +54,7 @@ async function prepareMessage({ payload, githubProject }) {
 
   let embed = new MessageEmbed()
     .setTitle(title)
-    .setDescription(description)
+    .setDescription(addLinksToGitHubHandles(description))
     .setURL(`${githubProjectUrl}#card-${project_card.id}`)
     .setColor(getColor(action))
     .setThumbnail(getThumbnail(cardState))
@@ -66,9 +66,9 @@ async function prepareMessage({ payload, githubProject }) {
     prevColName: prevColumn ? `[${prevColumn.name}](${githubProjectUrl}#column-${prevColumn.id})` : undefined,
     colName: column ? `[${column.name}](${githubProjectUrl}#column-${column.id})` : '-',
     created: project_card.creator
-      ? `[@${project_card.creator.login}](https://github.com/${project_card.creator.login}) on ${project_card.created_at.substr(0, 10)}` : '-',
-    assignees: (issue && issue.assignees || []).map(a => `[@${a.login}](https://github.com/${a.login})`).join('\n'),
-    reviewers: (pullRequest && pullRequest.requested_reviewers || []).map(r => `[@${r.login}](https://github.com/${r.login})`).join('\n'),
+      ? `@${project_card.creator.login} on ${project_card.created_at.substr(0, 10)}` : '-',
+    assignees: (issue && issue.assignees || []).map(a => `@${a.login}`).join('\n'),
+    reviewers: (pullRequest && pullRequest.requested_reviewers || []).map(r => `@${r.login}`).join('\n'),
     labels: (issue && issue.labels || []).map(l => `\`${l.name}\``).join(' '),
   };
   embed = setEmbedFields(embed, embedFields);
@@ -95,21 +95,21 @@ function setEmbedFields(embed, { prevColName, colName, created, assignees, revie
   if (assignees && reviewers) {
     embed = embed
       .addFields(
-        { name: 'Reviewers', value: reviewers, inline: true },
+        { name: 'Reviewers', value: addLinksToGitHubHandles(reviewers), inline: true },
         { name: '\u200B', value: '\u200B', inline: true },
-        { name: 'Assignees', value: assignees, inline: true },
+        { name: 'Assignees', value: addLinksToGitHubHandles(assignees), inline: true },
       );
   }
   else if (assignees) {
     embed = embed
       .addFields(
-        { name: 'Assignees', value: assignees },
+        { name: 'Assignees', value: addLinksToGitHubHandles(assignees) },
       );
   }
   else if (reviewers) {
     embed = embed
       .addFields(
-        { name: 'Reviewers', value: reviewers },
+        { name: 'Reviewers', value: addLinksToGitHubHandles(reviewers) },
       );
   }
 
@@ -122,7 +122,7 @@ function setEmbedFields(embed, { prevColName, colName, created, assignees, revie
 
   embed = embed
     .addFields(
-      { name: 'Created', value: created },
+      { name: 'Created', value: addLinksToGitHubHandles(created) },
     );
 
   return embed;
@@ -163,6 +163,10 @@ function detectProjectCardIssue(project_card) {
   }
 
   return null;
+}
+
+function addLinksToGitHubHandles(s) {
+  return s.replace(/@([a-zA-Z0-9-]+)/g, (handle, username) => `[${handle}](https://github.com/${username})`);
 }
 
 module.exports = {
