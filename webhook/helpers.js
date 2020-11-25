@@ -22,7 +22,7 @@ async function prepareMessage({ payload, githubProject }) {
   let prevColumn = null;
   let cardState = 'card';
   const firstLine = description.split(/\n+/)[0];
-  let title = `[${toPascalCase(action)}] ${firstLine}`;
+  let title = `\`[${toPascalCase(action)}]\` ${firstLine}`;
   description = description.replace(firstLine, '').trim();
   const column = await getProjectCardColumn(project_card.column_id);
   let issue = null;
@@ -40,7 +40,7 @@ async function prepareMessage({ payload, githubProject }) {
       cardState = await getCardState(issue, pullRequest);
       const issueRepo = `${detectedIssue.owner}/${detectedIssue.repo}`;
       const repoPrefix = issueRepo !== repoFullName ? issueRepo : '';
-      title = `[${toPascalCase(action)}] ${repoPrefix}#${issue.number}\n${issue.title}`;
+      title = `\`[${toPascalCase(action)}]\` ${repoPrefix}#${issue.number}\n${issue.title}`;
       description = project_card.note || '';
       if (!description) {
         description = (issue.body || '').trim();
@@ -92,12 +92,24 @@ function setEmbedFields(embed, { prevColName, colName, created, assignees, revie
       );
   }
 
-  if (assignees || reviewers) {
+  if (assignees && reviewers) {
     embed = embed
       .addFields(
-        { name: 'Reviewers', value: reviewers || '-', inline: true },
+        { name: 'Reviewers', value: reviewers, inline: true },
         { name: '\u200B', value: '\u200B', inline: true },
-        { name: 'Assignees', value: assignees || '-', inline: true },
+        { name: 'Assignees', value: assignees, inline: true },
+      );
+  }
+  else if (assignees) {
+    embed = embed
+      .addFields(
+        { name: 'Assignees', value: assignees },
+      );
+  }
+  else if (reviewers) {
+    embed = embed
+      .addFields(
+        { name: 'Reviewers', value: reviewers },
       );
   }
 
