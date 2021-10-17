@@ -7,7 +7,14 @@ const { connectToDatastore } = require('./datastore');
 
 connectToDatastore();
 
-const client = new Discord.Client();
+const client = new Discord.Client({
+  intents: [
+    Discord.Intents.FLAGS.DIRECT_MESSAGES,
+    Discord.Intents.FLAGS.GUILDS,
+    Discord.Intents.FLAGS.GUILD_MESSAGES,
+  ],
+  partials: ['MESSAGE', 'CHANNEL'],
+});
 client.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -21,7 +28,7 @@ client.once('ready', () => {
   console.log('Discord bot ready');
 });
 
-client.on('message', message => {
+client.on('messageCreate', message => {
   const args = message.content.slice(prefix.length).trim().split(/ +/);
   const commandName = args.shift().toLowerCase();
 

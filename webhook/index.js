@@ -29,7 +29,7 @@ module.exports = client => async (request, reply) => {
 
   for (const { channelId } of subscribedChannels) {
     const channel = await client.channels.fetch(channelId);
-    await channel.send(messageEmbed);
+    await channel.send({ embeds: [messageEmbed] });
   }
 
   reply.type('application/json').code(200);
