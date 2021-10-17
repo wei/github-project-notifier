@@ -64,7 +64,7 @@ const fastify = require('fastify')({
 
 fastify.post('/webhook', webhookHandler(client));
 
-fastify.listen(process.env.PORT || 3000, (err, address) => {
+fastify.listen(process.env.PORT || 3000, process.env.HOST || '0.0.0.0', (err, address) => {
   if (err) throw err;
   console.log(`Webhook server ready at ${address}`);
 });
