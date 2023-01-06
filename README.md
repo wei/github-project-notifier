@@ -6,8 +6,12 @@ It is easy to overlook activities in GitHub Projects. **GitHub Project Notifier*
 
 ## Usage
 
-1. Install **[GitHub Project Notifier](https://github.com/apps/discord-github-project-notifier)** GitHub App onto your project repositories.
-1. Add **[GitHub Project Notifier](https://discord.com/oauth2/authorize?client_id=777194551701536798&scope=bot)** Discord Bot to your server.
+1. ~~Install **[GitHub Project Notifier](https://github.com/apps/discord-github-project-notifier)** GitHub App onto your project repositories.~~
+1. ~~Add **[GitHub Project Notifier](https://discord.com/oauth2/authorize?client_id=777194551701536798&scope=bot)** Discord Bot to your server.~~
+
+> **Note**
+> * This app only works with GitHub Projects (classic).
+> * Please self-host the application.
 
 ## Commands
 
